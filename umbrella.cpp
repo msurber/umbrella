@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "umbrella_schirm.cpp"
+#include "umbrella_sun.cpp"
 
 #include <wiringPi.h>
 #include <oledDirect.h>
@@ -10,7 +12,8 @@
 #define CS      10
 #define DC      6
 #define RESET   5
-#define SPEED   1000000
+#define SPEED 16500000
+//#define SPEED   1000000
 // Create a variable to hold our OLED class.
 SSD1351 *oled;
 
@@ -22,6 +25,25 @@ void drawHeart() {
         oled->drawPolygon(points, 16, Colour::Red);
 
 }
+
+void drawUmbrellaImage() {
+        for (int x = 0; x < 128 ; x++) {
+                for (int y = 0; y < 128 ; y++) {
+                        const unsigned char* rgb = umbrella.pixel_data+(umbrella.width*y+x)*umbrella.bytes_per_pixel;
+                        oled->drawPixel(x,y,Colour(rgb[0],rgb[1],rgb[2]));
+                }
+        }
+}
+
+void drawSunImage() {
+        for (int x = 0; x < 128 ; x++) {
+                for (int y = 0; y < 128 ; y++) {
+                        const unsigned char* rgb = sun.pixel_data+(sun.width*y+x)*sun.bytes_per_pixel;
+                        oled->drawPixel(x,y,Colour(rgb[0],rgb[1],rgb[2]));
+                }
+        }
+}
+
 
 void drawUmbrella() {
         oled->drawCircle(Circle(64, 64, 63), Colour::Red);
@@ -66,12 +88,15 @@ void drawSun() {
 int main (int argc, char **argv) {
 
         int cflag = 0;
+        int dflag = 0;
         int c;
-        while ((c = getopt (argc, argv, "c")) != -1)
+        while ((c = getopt (argc, argv, "cd")) != -1)
         switch (c)
                 {
                 case 'c':
                         cflag = 1;
+                case 'd':
+                        dflag = 1;
                 break;
         }
 
@@ -90,8 +115,14 @@ int main (int argc, char **argv) {
         
         // drawHeart();
         if (cflag == 1) {
-                drawUmbrella();
+                //drawUmbrella();
+                drawUmbrellaImage();
         } else {
-                drawSun();      
+                //drawSun();
+                drawSunImage();
+        }
+
+        if (dflag == 1 ) {
+                drawUmbrellaImage();
         }
 }
